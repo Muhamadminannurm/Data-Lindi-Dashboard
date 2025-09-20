@@ -77,6 +77,10 @@ if menu == "Skenario 1: Upload CSV":
             st.markdown("""
             <div style='margin-top: 10px; font-size: 14px;'>
             <ul>
+                <li><strong>MSE</strong> (Mean Squared Error): Rata-rata kuadrat dari selisih.</li>
+                <li><strong>RMSE</strong> (Root MSE): Akar dari MSE.</li>
+                <li><strong>MAE</strong> (Mean Absolute Error): Rata-rata selisih absolut.</li>
+                <li><strong>R² Score</strong> (Koefisien Determinasi): Mengukur proporsi variabilitas dalam data target yang dapat dijelaskan oleh model. Nilai 1.0 berarti prediksi sempurna.</li>
                 <li><strong>Pearson's r</strong>: Mengukur korelasi linier antara aktual dan prediksi.</li>
                 <li><strong>P-value</strong>: Menunjukkan signifikansi statistik korelasi. P-value < 0.05 biasanya signifikan.</li>
             </ul>
@@ -258,4 +262,5 @@ elif menu == "Skenario 3: Pre-Proses Data (OHE)":
 
         except Exception as e:
             st.error(f"❌ Terjadi kesalahan saat membaca file: {str(e)}")
+
 

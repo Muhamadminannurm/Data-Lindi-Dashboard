@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from scipy.stats import pearsonr
 import joblib
+import openpyxl
 
 # Load model & scaler X
 model = joblib.load("model_leachate_ann.pkl")
@@ -24,7 +25,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-menu = st.sidebar.radio("📋 Pilih Skenario", ["Skenario 1: Upload CSV", "Skenario 2: Input Manual (Harian)"])
+menu = st.sidebar.radio("📋 Pilih Skenario", ["Skenario 1: Upload CSV", "Skenario 2: Input Manual (Harian)", "Skenario 3: Pre-Proses Data (OHE)"])
 
 # SKENARIO 1
 if menu == "Skenario 1: Upload CSV":
@@ -130,11 +131,7 @@ if menu == "Skenario 1: Upload CSV":
 
 # SKENARIO 2
 elif menu == "Skenario 2: Input Manual (Harian)":
-    st.markdown("""
-        <div style='text-align: center; margin-bottom: 10px;'>
-            <h4>Hasil Training Model: MAE ± 7.58 m³/hari</h4>
-        </div>
-    """, unsafe_allow_html=True)
+
     
     st.markdown("### 📥 Input Fitur Prediksi Harian Secara Manual")
     
@@ -209,3 +206,55 @@ elif menu == "Skenario 2: Input Manual (Harian)":
             )
         except Exception as e:
             st.error(f"❌ Terjadi error saat prediksi: {str(e)}")
+
+# SKENARIO 3
+elif menu == "Skenario 3: Pre-Proses Data (OHE)":
+    st.subheader("⚙️ Lakukan One-Hot Encoding")
+    st.info("Pilih file Excel (.xlsx) dengan kolom 'DDD_CAR' untuk diubah menjadi format One-Hot Encoding (OHE).")
+    
+    uploaded_file_ohe = st.file_uploader("Upload file Excel (.xlsx)", type=["xlsx"])
+
+    if uploaded_file_ohe:
+        try:
+            # Baca file Excel
+            df_ohe = pd.read_excel(uploaded_file_ohe)
+
+            # Validasi kolom 'DDD_CAR'
+            if 'DDD_CAR' not in df_ohe.columns:
+                st.error("❌ File yang diunggah tidak memiliki kolom 'DDD_CAR'. Silakan cek kembali file Anda.")
+            else:
+                st.markdown("---")
+                st.markdown("### 📋 Pratinjau Data Asli:")
+                st.dataframe(df_ohe.head(), use_container_width=True)
+                
+                # Proses One-Hot Encoding
+                st.markdown("---")
+                st.markdown("### 🚀 Melakukan One-Hot Encoding...")
+                
+                # One-hot encoding kolom 'ddd_car'
+                df_onehot = pd.get_dummies(df_ohe['DDD_CAR'], prefix='DDD_CAR', dtype=int)
+                
+                # Gabungkan hasil one-hot ke dataframe utama
+                df_processed = pd.concat([df_ohe, df_onehot], axis=1)
+                
+                # Hapus kolom asli 'DDD_CAR'
+                df_processed = df_processed.drop(columns=['DDD_CAR'])
+                
+                st.success("✅ One-Hot Encoding Berhasil! Data siap diunduh.")
+
+                # Tampilkan pratinjau data yang sudah diproses
+                st.markdown("### ✨ Pratinjau Data Setelah OHE:")
+                st.dataframe(df_processed.head(), use_container_width=True)
+
+                # Tombol untuk mengunduh file CSV
+                csv_file = df_processed.to_csv(index=False)
+                st.download_button(
+                    label="⬇️ Unduh DATAPROSES_OHE.csv",
+                    data=csv_file,
+                    file_name='DATAPROSES_OHE.csv',
+                    mime='text/csv',
+                    help="Klik untuk mengunduh file CSV yang telah diproses."
+                )
+
+        except Exception as e:
+            st.error(f"❌ Terjadi kesalahan saat membaca file: {str(e)}")

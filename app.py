@@ -29,7 +29,7 @@ menu = st.sidebar.radio("📋 Pilih Skenario", ["Skenario 1: Upload CSV", "Skena
 
 # SKENARIO 1
 if menu == "Skenario 1: Upload CSV":
-    st.subheader("📂 Upload File CSV (DATAPROSES2.CSV)")
+    st.subheader("📂 Upload File CSV ")
     uploaded_file = st.file_uploader("Upload dataset CSV", type=["csv"])
 
     if uploaded_file:
@@ -258,3 +258,4 @@ elif menu == "Skenario 3: Pre-Proses Data (OHE)":
 
         except Exception as e:
             st.error(f"❌ Terjadi kesalahan saat membaca file: {str(e)}")
+

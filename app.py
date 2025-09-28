@@ -25,7 +25,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-menu = st.sidebar.radio("📋 Pilih Skenario", ["Skenario 1: Upload CSV", "Skenario 2: Input Manual (Harian)", "Skenario 3: Pre-Proses Data (OHE)"])
+menu = st.sidebar.radio("📋 Pilih Skenario", ["Skenario 1: Upload CSV", "Skenario 2: Input Manual (Harian)"])
 
 # SKENARIO 1
 if menu == "Skenario 1: Upload CSV":
@@ -210,3 +210,4 @@ elif menu == "Skenario 2: Input Manual (Harian)":
             )
         except Exception as e:
             st.error(f"❌ Terjadi error saat prediksi: {str(e)}")
+

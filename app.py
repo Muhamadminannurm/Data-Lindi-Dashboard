@@ -459,7 +459,7 @@ elif menu == "Skenario 3: TESTING SINGLE":
     if not MODEL_LOADED:
         st.stop()
         
-    st.markdown("### 📥 Input Fitur Prediksi Harian Secara Manual")
+    st.markdown("### 📥 Input Fitur Secara Manual")
     
     feature_values = {}
     
@@ -481,7 +481,7 @@ elif menu == "Skenario 3: TESTING SINGLE":
         feature_values['FF_AVG'] = st.number_input("FF_AVG (Kec. Angin Rata-rata)", value=5.0, step=0.1)
     
     st.markdown("---")
-    st.markdown("#### Input Arah Angin (Harian)")
+    st.markdown("#### Input Arah Angin ")
     st.info("Pilih satu arah angin yang paling dominan untuk hari ini.")
 
     wind_directions = ['DDD_CAR_C', 'DDD_CAR_E', 'DDD_CAR_NW', 'DDD_CAR_S', 'DDD_CAR_SE', 'DDD_CAR_SW', 'DDD_CAR_W']
@@ -519,6 +519,7 @@ elif menu == "Skenario 3: TESTING SINGLE":
         except Exception as e:
 
             st.error(f"❌ Terjadi error saat prediksi. Pastikan semua input sudah diisi dengan benar. Error: {str(e)}")
+
 
 
 

@@ -67,7 +67,7 @@ menu = st.sidebar.radio(
 # ===============================================
 # MODIFIKASI: MENAMBAHKAN TEKS UNIVERSITAS DI BAWAH SIDEBAR
 # ===============================================
-for _ in range(22):
+for _ in range(30):
     st.sidebar.markdown("   ")
 
 st.sidebar.markdown(
@@ -459,29 +459,29 @@ elif menu == "Skenario 3: TESTING SINGLE":
     if not MODEL_LOADED:
         st.stop()
         
-    st.markdown("### 📥 Input Fitur Secara Manual")
+    st.markdown("### 📥 Input Fitur Prediksi Harian Secara Manual")
     
     feature_values = {}
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        feature_values['TN'] = st.number_input("TN (Suhu Min)", value=24.0, step=0.1)
-        feature_values['TX'] = st.number_input("TX (Suhu Maks)", value=32.0, step=0.1)
-        feature_values['TAVG'] = st.number_input("TAVG (Suhu Rata-rata)", value=28.0, step=0.1)
+        feature_values['TN'] = st.number_input("TN (Suhu Min)", value=22.20, step=0.1)
+        feature_values['TX'] = st.number_input("TX (Suhu Maks)", value=31.06, step=0.1)
+        feature_values['TAVG'] = st.number_input("TAVG (Suhu Rata-rata)", value=25.21, step=0.1)
     
     with col2:
-        feature_values['RH_AVG'] = st.number_input("RH_AVG (Kelembaban Rata-rata)", value=80.0, step=0.1)
-        feature_values['RR'] = st.number_input("RR (Curah Hujan)", value=10.0, step=0.1)
-        feature_values['SS'] = st.number_input("SS (Durasi Matahari)", value=5.0, step=0.1)
+        feature_values['RH_AVG'] = st.number_input("RH_AVG (Kelembaban Rata-rata)", value=83.32, step=0.1)
+        feature_values['RR'] = st.number_input("RR (Curah Hujan)", value=10.13, step=0.1)
+        feature_values['SS'] = st.number_input("SS (Durasi Matahari)", value=5.26, step=0.1)
     
     with col3:
-        feature_values['FF_X'] = st.number_input("FF_X (Kec. Angin Maks)", value=15.0, step=0.1)
-        feature_values['DDD_X'] = st.number_input("DDD_X (Arah Angin Maks)", value=200.0, step=1.0)
-        feature_values['FF_AVG'] = st.number_input("FF_AVG (Kec. Angin Rata-rata)", value=5.0, step=0.1)
+        feature_values['FF_X'] = st.number_input("FF_X (Kec. Angin Maks)", value=2.74, step=0.1)
+        feature_values['DDD_X'] = st.number_input("DDD_X (Arah Angin Maks)", value=198.01, step=1.0)
+        feature_values['FF_AVG'] = st.number_input("FF_AVG (Kec. Angin Rata-rata)", value=1.41, step=0.1)
     
     st.markdown("---")
-    st.markdown("#### Input Arah Angin ")
+    st.markdown("#### Input Arah Angin (Harian)")
     st.info("Pilih satu arah angin yang paling dominan untuk hari ini.")
 
     wind_directions = ['DDD_CAR_C', 'DDD_CAR_E', 'DDD_CAR_NW', 'DDD_CAR_S', 'DDD_CAR_SE', 'DDD_CAR_SW', 'DDD_CAR_W']
@@ -517,9 +517,4 @@ elif menu == "Skenario 3: TESTING SINGLE":
                 """, unsafe_allow_html=True
             )
         except Exception as e:
-
             st.error(f"❌ Terjadi error saat prediksi. Pastikan semua input sudah diisi dengan benar. Error: {str(e)}")
-
-
-
-

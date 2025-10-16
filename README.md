@@ -8,4 +8,5 @@ model_leachate_ann.pkl adalah model yang disimpan
 
 scaler_X.pkl adalah scaler yang disimpan
 
-requirements.txt adalah kebutuhan
+requirements.txt adalah kebutuhan aplikasi yang diperlukan
+

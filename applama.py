@@ -211,3 +211,4 @@ elif menu == "Skenario 2: Input Manual (Harian)":
         except Exception as e:
             st.error(f"❌ Terjadi error saat prediksi: {str(e)}")
 
+

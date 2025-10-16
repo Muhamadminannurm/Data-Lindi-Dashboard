@@ -1,6 +1,6 @@
 Data Lindi2.xlsx adalah data awal
 
-DATAPROSES2.csv adalah data setelah proses ( bisa didapat setelah meng run skenario 1 : eksperimen 
+DATAPROSES2.csv adalah data setelah proses ( bisa didapat setelah meng run skenario 1 : eksperimen )
 
 app.py adalah applikasi utama
 

@@ -67,7 +67,7 @@ menu = st.sidebar.radio(
 # ===============================================
 # MODIFIKASI: MENAMBAHKAN TEKS UNIVERSITAS DI BAWAH SIDEBAR
 # ===============================================
-for _ in range(30):
+for _ in range(20):
     st.sidebar.markdown("   ")
 
 st.sidebar.markdown(
@@ -517,4 +517,5 @@ elif menu == "Skenario 3: TESTING SINGLE":
                 """, unsafe_allow_html=True
             )
         except Exception as e:
+
             st.error(f"❌ Terjadi error saat prediksi. Pastikan semua input sudah diisi dengan benar. Error: {str(e)}")

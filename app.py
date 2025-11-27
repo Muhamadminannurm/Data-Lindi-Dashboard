@@ -390,7 +390,6 @@ if menu == "🏠 Home":
     st.markdown(
         """
         <div style='text-align: center; padding: 20px;'>
-            <h2 style='color: #e0e0e0;'>Selamat Datang di Sistem Cerdas TPA</h2>
             <p style='font-size: 18px; color: #ccc; margin-top: 10px;'>
                 Sistem ini dirancang untuk membantu memprediksi volume air lindi (leachate) 
                 di Tempat Pembuangan Akhir menggunakan algoritma Jaringan Syaraf Tiruan (ANN).
@@ -595,3 +594,4 @@ elif menu == "📝 Testing Single":
             )
         except Exception as e:
             st.error(f"Gagal memprediksi: {str(e)}")
+

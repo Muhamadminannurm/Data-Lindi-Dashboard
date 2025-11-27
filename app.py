@@ -7,10 +7,212 @@ from scipy.stats import pearsonr
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import joblib
-import openpyxl
-import io 
+import io
+import base64
 
-# Load model & scaler X
+# =============================================================================
+# 1. KONFIGURASI HALAMAN & CSS
+# =============================================================================
+st.set_page_config(
+    page_title="Leachate AI Pro",
+    page_icon="💧",
+    layout="wide",
+    initial_sidebar_state="auto"
+)
+
+def get_base64(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+def set_style(png_file):
+    try:
+        bin_str = get_base64(png_file)
+        st.markdown(
+            f"""
+            <style>
+            /* --- ANIMASI --- */
+            @keyframes slideDownSmooth {{
+                0% {{ opacity: 0; transform: translateY(-40px); filter: blur(5px); }}
+                100% {{ opacity: 1; transform: translateY(0); filter: blur(0px); }}
+            }}
+            @keyframes popIn {{
+                0% {{ opacity: 0; transform: scale(0.95); }}
+                60% {{ opacity: 1; transform: scale(1.02); }}
+                100% {{ transform: scale(1); }}
+            }}
+
+            /* --- TEKS GLOBAL --- */
+            h1, h2, h3, h4, h5, p, label, span, div.stMarkdown, div.stMetricLabel, li, div[data-testid="stDialog"] {{
+                color: #e0e0e0 !important;
+                font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            }}
+
+            /* --- 1. KEYFRAMES ANIMASI NEON BERJALAN --- */
+            @keyframes rgbFlow {{
+                0% {{ background-position: 0% 50%; }}
+                50% {{ background-position: 100% 50%; }}
+                100% {{ background-position: 0% 50%; }}
+            }}
+
+            @keyframes slideDownSmooth {{
+                0% {{ opacity: 0; transform: translateY(-40px); filter: blur(5px); }}
+                100% {{ opacity: 1; transform: translateY(0); filter: blur(0px); }}
+            }}
+            
+            /* --- BACKGROUND UTAMA --- */
+            .stApp {{
+                background-image: url("data:image/png;base64,{bin_str}");
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+            }}
+
+           /* --- KONTAINER UTAMA (RGB BORDER ONLY) --- */
+            .block-container {{
+                aposition: relative; /* Wajib ada agar border menempel */
+                animation: slideDownSmooth 1.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+                
+                /* Warna Kaca Gelap Transparan (Tengahnya) */
+                background-color: rgba(28, 31, 38, 0.6); 
+                
+                /* --- PERUBAHAN DISINI (MEMBUAT LEBAR PENUH) --- */
+                max-width: 100vw !important;  /* Paksa lebar maksimum seukuran layar */
+                width: 100% !important;       /* Paksa lebar 100% */
+                padding: 2rem 2rem !important; /* Sesuaikan padding agar tidak terlalu mepet */
+                /* ----------------------------------------------- */
+                border-radius: 20px;
+                padding: 2.5rem 3rem;
+                margin-top: 2rem;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+                backdrop-filter: blur(15px);
+                border: none; /* Border asli dimatikan */
+            }}
+
+            .block-container::before {{
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 20px; 
+                padding: 3px; /* KETEBALAN GARIS NEON */
+                
+                /* Warna Pelangi */
+                background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); 
+                background-size: 400% 400%; /* Diperbesar agar animasi jalan terlihat */
+                animation: rgbFlow 2s linear infinite; /* Kecepatan jalan */
+                
+                /* TEKNIK MASKING: Membuat tengahnya bolong sehingga transparansi kaca di layer bawah terlihat */
+                -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                
+                pointer-events: none; /* Agar tetap bisa klik isi konten */
+                z-index: 2; /* Di atas background kaca */
+            }}
+
+            /* --- SIDEBAR --- */
+            section[data-testid="stSidebar"] {{
+                background-color: rgba(20, 23, 28, 0.6); /* Kaca Gelap */
+                backdrop-filter: blur(10px);
+                border: none; /* Hapus border biasa */
+                position: relative; /* Wajib agar neon menempel */
+            }}
+            section[data-testid="stSidebar"]::before {{
+                content: "";
+                position: absolute;
+                top: 0; 
+                right: 0; 
+                bottom: 0;
+                width: 3px; /* KETEBALAN GARIS NEON */
+                
+                /* Warna Pelangi Vertikal */
+                background-size: 400% 400%;
+                animation: rgbFlow 1s linear infinite; /* Animasi Jalan */
+                
+                z-index: 2;
+            }}
+            section[data-testid="stSidebar"] .stMarkdown, section[data-testid="stSidebar"] h1 {{ color: #ffffff !important; }}
+
+            /* --- TOMBOL --- */
+            div.stButton > button {{
+                background: linear-gradient(135deg, #00C6FF 0%, #0072FF 100%);
+                color: white !important;
+                border: none;
+                border-radius: 12px;
+                padding: 0.6rem 1.5rem;
+                font-weight: 700;
+                transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+                box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+            }}
+            div.stButton > button:hover {{
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 8px 25px rgba(0, 114, 255, 0.6);
+            }}
+            
+            /* --- WIDGET INPUT --- */
+            div[data-baseweb="input"], div[data-baseweb="select"] > div {{
+                background-color: rgba(255, 255, 255, 0.05) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                color: white !important;
+            }}
+
+            /* --- MODAL DIALOG (FIXED DARK GLASS) --- */
+            div[role="dialog"] {{
+                position: relative; /* Penting agar border neon menempel */
+                
+                /* Warna Kaca Gelap Transparan */
+                background-color: rgba(28, 31, 38, 0.2) !important; 
+                backdrop-filter: blur(10px);
+                
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+                color: #e0e0e0 !important;
+                
+                border: none !important;
+            }}
+            
+            div[role="dialog"]::before {{
+                content: "";
+                position: absolute;
+                inset: 0; /* Menempel di ujung */
+                border-radius: 20px; 
+                padding: 3px; /* KETEBALAN NEON */
+                
+                /* Warna Pelangi */
+                background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); 
+                background-size: 400% 400%;
+                animation: rgbFlow 1s linear infinite;
+                
+                /* MASKING: Membuat tengah bolong */
+                -webkit-mask: 
+                   linear-gradient(#fff 0 0) content-box, 
+                   linear-gradient(#fff 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                
+                pointer-events: none;
+                z-index: 2;
+            }}
+
+            /* --- MENGHILANGKAN TOMBOL 'X' (CLOSE) DI DIALOG --- */
+            div[role="dialog"] button[aria-label="Close"] {{
+                display: none !important;
+            }}
+            
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    except FileNotFoundError:
+        st.warning("⚠️ File 'TPA.jpg' tidak ditemukan.")
+
+set_style('TPA.jpg')
+
+# =============================================================================
+# 2. LOGIKA BACKEND & MODEL
+# =============================================================================
 try:
     model = joblib.load("model_leachate_ann.pkl")
     scaler_X = joblib.load("scaler_X.pkl")
@@ -23,15 +225,10 @@ try:
             'TN', 'TX', 'TAVG', 'RH_AVG', 'RR', 'SS', 'FF_X', 'DDD_X', 'FF_AVG',
             'DDD_CAR_C', 'DDD_CAR_E', 'DDD_CAR_NW', 'DDD_CAR_S', 'DDD_CAR_SE', 'DDD_CAR_SW', 'DDD_CAR_W'
         ]
-        
-except FileNotFoundError:
-    st.error("Error: File 'model_leachate_ann.pkl' atau 'scaler_X.pkl' tidak ditemukan. Harap pastikan file model hasil pelatihan sudah diunggah.")
-    MODEL_LOADED = False
 except Exception as e:
-    st.error(f"Error saat memuat model: {str(e)}")
+    st.error(f"Error System: {str(e)}")
     MODEL_LOADED = False
 
-# Scaling function (digunakan di skenario 2 dan 3)
 def scale_features(df_input, scaler_X):
     feature_names = SCALER_FEATURES
     X = df_input[feature_names]
@@ -39,297 +236,188 @@ def scale_features(df_input, scaler_X):
     X_scaled = scaler_X.transform(X)
     return X, y, X_scaled
 
-# Streamlit UI
-st.set_page_config(layout="wide")
-st.markdown(
-    "<h1 style='text-align: center;'> Prediksi Volume Air Lindi Menggunakan Algoritma Artificial Neural Network</h1>",
-    unsafe_allow_html=True
-)
-
-# ===============================================
-# MODIFIKASI: MENAMBAHKAN LOGO DI ATAS SIDEBAR
-# ===============================================
-st.sidebar.image(
-    "logo.png", 
-    use_container_width=True # <--- GUNAKAN PARAMETER BARU INI
-)
-# ===============================================
-
-# --- URUTAN SKENARIO ---
-for _ in range(4):
-    st.sidebar.markdown("   ")
+# =============================================================================
+# 3. SIDEBAR NAVIGATION (UPDATED LOGIC)
+# =============================================================================
+with st.sidebar:
+    try:
+        st.image("logo.png", use_container_width=True)
+    except:
+        st.markdown("<h2 style='text-align:center; color:#00C6FF;'>AI LEACHATE</h2>", unsafe_allow_html=True)
     
-menu = st.sidebar.radio(
-    "📋 MENU ", 
-    ["Skenario 1: Eksperimen", "Skenario 2: TESTING BATCH", "Skenario 3: TESTING SINGLE"]
-)
-
-# ===============================================
-# MODIFIKASI: MENAMBAHKAN TEKS UNIVERSITAS DI BAWAH SIDEBAR
-# ===============================================
-for _ in range(30):
-    st.sidebar.markdown("   ")
-
-st.sidebar.markdown(
-    "<p style='text-align: center; font-size: small; color: gray;'>Dibangun oleh:</p>",
-    unsafe_allow_html=True
-)
-st.sidebar.markdown(
-    "<h3 style='text-align: center; color: #007BFF;'>Universitas Muhammadiyah Malang</h3>",
-    unsafe_allow_html=True
-)
-# ===============================================
-
-# =================================================================
-# SKENARIO 1: EKSPERIMEN WHITE BOX (FULL)
-# =================================================================
-if menu == "Skenario 1: Eksperimen":
-    st.subheader("🔬 Alur Eksperimen End-to-End ")
-   
-    # Inisialisasi status data
-    if 'df_processed' not in st.session_state:
-        st.session_state['df_processed'] = None
+    st.markdown("---")
+    
+    # CSS Radio Button
+    st.markdown("""
+        <style>
+        /* Container Dasar Tombol */
+        div[role="radiogroup"] label {
+            background-color: rgba(255,255,255,0.05) !important;
+            color: #ccc !important;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+            
+            /* Transisi Halus untuk efek geser */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
         
-    tab1, tab2 = st.tabs(["1. Input & Pre-Proses Data", "2. Pembentukan Model & Hasil Evaluasi"])
-
-    # -----------------------------------------------------------------
-    # Tab 1: Input & Pre-Proses Data
-    # -----------------------------------------------------------------
-    with tab1:
-        st.markdown("### 1. 📥 Input Data Awal ")
-        uploaded_excel = st.file_uploader("Upload File Excel ", type=["xlsx"])
+        /* Efek Hover: GESER KANAN 6px */
+        div[role="radiogroup"] label:hover {
+            background-color: rgba(0, 198, 255, 0.15) !important;
+            border-color: #00C6FF;
+            
+            /* INI BAGIAN ANIMASI GESERNYA */
+            transform: translateX(6px); 
+            
+            color: white !important;
+            box-shadow: -3px 0 10px rgba(0, 198, 255, 0.2);
+        }
         
-        if uploaded_excel:
-            try:
-                # Membaca data mentah
-                df_raw = pd.read_excel(io.BytesIO(uploaded_excel.getvalue()))
+        /* Efek Aktif (Terpilih) */
+        div[role="radiogroup"] label[data-checked="true"] {
+             background: linear-gradient(90deg, rgba(0,198,255,0.2), transparent) !important;
+             border-left: 4px solid #00C6FF !important;
+             color: #00C6FF !important;
+             font-weight: bold;
+             
+             /* Geser sedikit untuk menandakan aktif */
+             transform: translateX(2px);
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # --- STATE MANAGEMENT ---
+    # Perbarui opsi menu
+    menu_options = ["🏠 Home", "📊 Testing Batch", "📝 Testing Single"]
+    
+    if "active_menu" not in st.session_state:
+        st.session_state["active_menu"] = menu_options[0]
+
+    # --- DIALOG POPUP ---
+    @st.dialog("⚠️ Konfirmasi Perpindahan")
+    def confirm_switch(new_selection):
+        st.markdown(
+            f"""
+            <div style='text-align: center; color: #e0e0e0;'>
+                <p style='font-size: 1.1em;'>
+                    Anda akan berpindah ke <br>
+                    <b style='color: #00C6FF;'>{new_selection}</b>
+                </p>
+                <div style='background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; font-size: 0.9em; margin: 20px 0; border: 1px solid rgba(255,255,255,0.1);'>
+                    ❗ Tindakan ini akan <b>MENGHAPUS (RESET)</b> semua hasil analisis dan data yang sedang tampil saat ini.
+                </div>
+                <p>Apakah Anda yakin ingin melanjutkan?</p>
+            </div>
+            """, unsafe_allow_html=True
+        )
+        
+        col_y, col_n = st.columns(2)
+        with col_y:
+            if st.button("✅ YA, Reset", type="primary", use_container_width=True):
+                # 1. Hapus Data Session
+                keys = ['df_processed', 'X_train_scaled', 'y_train', 'X_test_scaled', 'y_test']
+                for k in keys: 
+                    if k in st.session_state: del st.session_state[k]
                 
-                # --- Tampilkan Jumlah Data Mentah ---
-                st.info(f"Jumlah Data Mentah: **{len(df_raw)} baris**.")
-                st.markdown("#### Pratinjau Data Mentah:")
-                st.dataframe(df_raw.head(50))
+                # 2. Update Halaman Aktif
+                st.session_state["active_menu"] = new_selection
+                st.rerun()
                 
-                # --- Langkah Pre-Proses (sesuai Colab) ---
-                st.markdown("### 2. ⚙️ Pre-Proses Data (One-Hot Encoding)")
-                st.code("""
-                            # One-hot encoding kolom 'DDD_CAR'
-                            df_onehot = pd.get_dummies(df['DDD_CAR'], prefix='DDD_CAR', dtype=int)
-                            # Gabungkan hasil one-hot dan hapus kolom asli
-                            df = pd.concat([df, df_onehot], axis=1)
-                            df = df.drop(columns=['DDD_CAR'])
-                            df.to_csv("DATAPROSES.csv", index=False)
-                        """)
-                
-                if 'DDD_CAR' in df_raw.columns:
-                    # Lakukan OHE secara aktual
-                    df_onehot = pd.get_dummies(df_raw['DDD_CAR'], prefix='DDD_CAR', dtype=int)
-                    df_processed = pd.concat([df_raw, df_onehot], axis=1)
-                    df_processed = df_processed.drop(columns=['DDD_CAR'])
-                    
-                    st.success("✅ Pre-Proses (OHE) Selesai!")
-                    
-                    # --- Tampilkan Jumlah Data Proses ---
-                    st.info(f"Jumlah Data Setelah Proses (DATAPROSES.csv): **{len(df_processed)} baris**.")
-                    st.markdown("#### Pratinjau Data Proses (`DATAPROSES.csv`):")
-                    st.dataframe(df_processed.head(50))
-                    
-                    # --- Tombol Download ---
-                    csv_data = df_processed.to_csv(index=False).encode('utf-8')
-                    st.download_button(
-                        label="⬇️ Unduh DATAPROSES.csv",
-                        data=csv_data,
-                        file_name='DATAPROSES.csv',
-                        mime='text/csv',
-                        help="Klik untuk mengunduh data yang sudah diproses OHE."
-                    )
-                    
-                    st.session_state['df_processed'] = df_processed
-                else:
-                    st.error("❌ File Excel harus memiliki kolom 'DDD_CAR' untuk One-Hot Encoding.")
-                    st.session_state['df_processed'] = None
+        with col_n:
+            if st.button("❌ Batal", use_container_width=True):
+                # Kembalikan Radio ke posisi semula
+                st.session_state["nav_radio"] = st.session_state["active_menu"]
+                st.rerun()
 
-            except Exception as e:
-                st.error(f"❌ Terjadi kesalahan saat memproses file: {str(e)}")
-        else:
-            st.warning("Mohon unggah file Excel data mentah Anda.")
-
-    # -----------------------------------------------------------------
-    # Tab 2: Pembentukan Model & Hasil Evaluasi
-    # -----------------------------------------------------------------
-    with tab2:
-        st.markdown("### 3. 🔪 Split Data & Scaling")
-        if st.session_state['df_processed'] is not None and MODEL_LOADED:
-            df_processed = st.session_state['df_processed']
-
-            if 'Lindi' not in df_processed.columns:
-                st.error("Data proses tidak memiliki kolom 'Lindi'.")
-                st.stop()
-                
-            X = df_processed.drop(columns=["Lindi", "TANGGAL"])
-            y = df_processed["Lindi"]
+    # --- CALLBACK (MODIFIED LOGIC) ---
+    def on_nav_change():
+        target = st.session_state["nav_radio"]
+        current = st.session_state["active_menu"]
+        
+        # JIKA sedang di HOME -> Langsung pindah (Tidak perlu peringatan)
+        if current == menu_options[0]: 
+            st.session_state["active_menu"] = target
             
-            # Mencocokkan kolom dengan yang digunakan saat training (penting)
-            missing_cols = set(SCALER_FEATURES) - set(X.columns)
-            if missing_cols:
-                for col in missing_cols:
-                    X[col] = 0
-            
-            X = X[SCALER_FEATURES]
+        # JIKA sedang di Skenario 2 atau 3 -> Munculkan Peringatan
+        elif target != current:
+            confirm_switch(target)
 
-            # Simulasi train_test_split
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.3, random_state=42
-            )
-            
-            # Scaling Data (menggunakan scaler yang sudah dimuat)
-            X_train_scaled = scaler_X.transform(X_train) 
-            X_test_scaled = scaler_X.transform(X_test)
-            
-            # Simpan data split di session state
-            st.session_state['X_train_scaled'] = X_train_scaled
-            st.session_state['y_train'] = y_train
-            st.session_state['X_test_scaled'] = X_test_scaled
-            st.session_state['y_test'] = y_test
-            
-            st.code("""
-                        # Pisahkan fitur & target
-                        X = df.drop(columns=["Lindi", "TANGGAL"])
-                        y = df["Lindi"]
+    # --- RENDER RADIO BUTTON ---
+    selection = st.radio(
+        "NAVIGASI UTAMA",
+        menu_options,
+        key="nav_radio",
+        index=menu_options.index(st.session_state["active_menu"]),
+        on_change=on_nav_change
+    )
+    
+    menu = st.session_state["active_menu"]
 
-                        # Split train-test (30% test, random_state=42)
-                        X_train, X_test, y_train, y_test = train_test_split(
-                            X, y, test_size=0.3, random_state=42
-                        )
+    st.markdown("---")
+    st.markdown(
+        """
+        <div style='text-align: center; font-size: 12px; color: #888; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;'>
+            Developed by:<br>
+            <strong style='color: #00C6FF; font-size: 13px; letter-spacing: 0.5px;'>Universitas Muhammadiyah Malang</strong>
+        </div>
+        """, unsafe_allow_html=True
+    )
 
-                        # Scaling fitur (StandardScaler)
-                        scaler = StandardScaler()
-                        X_train_scaled = scaler.fit_transform(X_train)
-                        X_test_scaled = scaler.transform(X_test)
-                    """)
-            st.success(f"✅ Data berhasil dibagi: **Data Training** ({len(X_train)} baris) dan **Data Uji (Test)** ({len(X_test)} baris).")
-            st.markdown("---")
-            
-            st.markdown("### 4. 🧠 Pembentukan Model & Pelatihan (ANN)")
-            st.code("""
-                        # Konfigurasi Model (ANN/MLPRegressor)
-                        mlp = MLPRegressor(
-                            hidden_layer_sizes=(64, 64),
-                            activation='tanh', solver='adam',
-                            alpha=0.001, learning_rate_init=0.005,
-                            learning_rate="adaptive", batch_size=128,
-                            max_iter=5000, random_state=42,
-                            early_stopping=True, n_iter_no_change=60
-                        )
-                        # Pelatihan Model (Dijalankan di Colab)
-                        mlp.fit(X_train_scaled, y_train)
-                 """)
-            st.info("⚠️ Proses pelatihan telah dilakukan sebelumnya. Kami menggunakan model yang sudah dimuat untuk simulasi evaluasi.")
-            st.markdown("---")
+# =============================================================================
+# 4. KONTEN UTAMA
+# =============================================================================
 
-            # --- Hasil Evaluasi ---
-            st.markdown("### 5. 📊 Hasil Evaluasi (Simulasi)")
-            
-            X_train_scaled = st.session_state['X_train_scaled']
-            y_train = st.session_state['y_train']
-            X_test_scaled = st.session_state['X_test_scaled']
-            y_test = st.session_state['y_test']
-            
-            y_train_pred = model.predict(X_train_scaled)
-            y_test_pred = model.predict(X_test_scaled)
+# HEADER
+st.markdown(
+    """
+    <div style='text-align: center; margin-bottom: 40px;'>
+        <h1 style='margin: 0; font-weight: 800; letter-spacing: 1.5px; text-shadow: 0 4px 8px rgba(0,0,0,0.5);'>PREDIKSI VOLUME AIR LINDI</h1>
+        <p style='font-size: 16px; opacity: 0.7; color: #00C6FF !important; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;'>Artificial Neural Network Implementation</p>
+        <div style='height: 3px; width: 60px; background: #00C6FF; margin: 20px auto; border-radius: 2px; box-shadow: 0 0 10px #00C6FF;'></div>
+    </div>
+    """, unsafe_allow_html=True
+)
 
-            # Perhitungan Metrik
-            train_r2 = r2_score(y_train, y_train_pred)
-            train_rmse = np.sqrt(mean_squared_error(y_train, y_train_pred))
-            test_r2 = r2_score(y_test, y_test_pred)
-            test_rmse = np.sqrt(mean_squared_error(y_test, y_test_pred))
-            corr_train, _ = pearsonr(y_train, y_train_pred)
-            corr_test, _ = pearsonr(y_test, y_test_pred)
+# -----------------------------------------------------------------------------
+# HALAMAN: HOME
+# -----------------------------------------------------------------------------
+if menu == "🏠 Home":
+    # Konten Home (Placeholder)
+    st.markdown(
+        """
+        <div style='text-align: center; padding: 20px;'>
+            <h2 style='color: #e0e0e0;'>Selamat Datang di Sistem Cerdas TPA</h2>
+            <p style='font-size: 18px; color: #ccc; margin-top: 10px;'>
+                Sistem ini dirancang untuk membantu memprediksi volume air lindi (leachate) 
+                di Tempat Pembuangan Akhir menggunakan algoritma Jaringan Syaraf Tiruan (ANN).
+            </p>
+            <br>
+            <div style='background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); display: inline-block; text-align: left;'>
+                <h4 style='color: #00C6FF; margin-bottom: 15px;'>🔍 Fitur Utama:</h4>
+                <ul style='list-style-type: none; padding: 0; color: #ddd;'>
+                    <li style='margin-bottom: 10px;'>📊 <b>Testing Batch:</b> Evaluasi model dengan dataset besar (CSV).</li>
+                    <li style='margin-bottom: 10px;'>📝 <b>Testing Single:</b> Prediksi harian cepat dengan input manual.</li>
+                    <li style='margin-bottom: 10px;'>📈 <b>Visualisasi:</b> Grafik interaktif Time Series dan Scatter Plot.</li>
+                </ul>
+            </div>
+            <br><br>
+            <p style='font-size: 14px; color: #888;'>Silakan pilih menu di sidebar kiri untuk memulai analisis.</p>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
 
-            col_train_res, col_test_res = st.columns(2)
-            
-            with col_train_res:
-                st.markdown("#### Hasil Evaluasi Data **Training**")
-                st.metric("📈 R² Score", f"{train_r2:.4f}")
-                st.metric("📊 RMSE", f"{train_rmse:.2f}")
-                st.metric("✅ Pearson's r", f"{corr_train:.4f}")
-            
-            with col_test_res:
-                st.markdown("#### Hasil Evaluasi Data **Testing**")
-                st.metric("📈 R² Score", f"{test_r2:.4f}")
-                st.metric("📊 RMSE", f"{test_rmse:.2f}")
-                st.metric("✅ Pearson's r", f"{corr_test:.4f}")
-
-            # TIME SERIES PLOT (Grafik Naik Turun)
-            st.markdown("---")
-            st.markdown("##### 📈 Time Series: Aktual vs Prediksi")
-            fig_ts, axs_ts = plt.subplots(1, 2, figsize=(14, 6))
-
-            # --- Plot Train Time Series ---
-            axs_ts[0].plot(y_train.values, label="Aktual", marker='o', markersize=3, linestyle='-')
-            axs_ts[0].plot(y_train_pred, label="Prediksi", marker='x', markersize=3, linestyle='--')
-            axs_ts[0].set_title(f"Training Data Time Series (RMSE: {train_rmse:.2f})")
-            axs_ts[0].set_xlabel("Indeks Data")
-            axs_ts[0].set_ylabel("Lindi (m³/hari)")
-            axs_ts[0].legend()
-            axs_ts[0].grid(True)
-
-            # --- Plot Test Time Series ---
-            axs_ts[1].plot(y_test.values, label="Aktual", marker='o', markersize=3, linestyle='-')
-            axs_ts[1].plot(y_test_pred, label="Prediksi", marker='x', markersize=3, linestyle='--')
-            axs_ts[1].set_title(f"Testing Data Time Series (RMSE: {test_rmse:.2f})")
-            axs_ts[1].set_xlabel("Indeks Data")
-            axs_ts[1].set_ylabel("Lindi (m³/hari)")
-            axs_ts[1].legend()
-            axs_ts[1].grid(True)
-
-            plt.tight_layout()
-            st.pyplot(fig_ts)
-
-
-            # Scatter Plot TRAIN vs TEST (Kode sebelumnya)
-            st.markdown("##### 📌 Scatter Plot: Aktual vs Prediksi")
-            fig_sc, axs_sc = plt.subplots(1, 2, figsize=(12, 6))
-
-            # --- Plot Train ---
-            axs_sc[0].scatter(y_train, y_train_pred, alpha=0.6, color="blue", edgecolor="k")
-            axs_sc[0].plot([y_train.min(), y_train.max()], [y_train.min(), y_train.max()], "r--", lw=2) 
-            axs_sc[0].set_title(f"Training Data (r = {corr_train:.4f})")
-            axs_sc[0].set_xlabel("Aktual (m³/hari)")
-            axs_sc[0].set_ylabel("Prediksi (m³/hari)")
-            axs_sc[0].grid(True)
-            
-            # --- Plot Test ---
-            axs_sc[1].scatter(y_test, y_test_pred, alpha=0.6, color="green", edgecolor="k")
-            axs_sc[1].plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], "r--", lw=2)
-            axs_sc[1].set_title(f"Testing Data (r = {corr_test:.4f})")
-            axs_sc[1].set_xlabel("Aktual (m³/hari)")
-            axs_sc[1].set_ylabel("Prediksi (m³/hari)")
-            axs_sc[1].grid(True)
-            
-            plt.tight_layout()
-            st.pyplot(fig_sc)
-
-
-            st.markdown("---")
-            st.markdown("### 6. 💾 Simpan Model")
-            st.code("""
-                        # Simpan model MLPRegressor & Scaler (Dijalankan di Colab)
-                        # joblib.dump(mlp, "model_leachate_ann.pkl")
-                        # joblib.dump(scaler, "scaler_X.pkl")
-                    """)
-            st.success("✅ Model dan Scaler telah disimpan sebagai `.pkl` file dan berhasil dimuat di aplikasi ini.")
-
-        else:
-            st.warning("Mohon selesaikan langkah **'1. Input & Pre-Proses Data'** di tab sebelumnya terlebih dahulu.")
-
-
-# =================================================================
-# SKENARIO 2: UPLOAD CSV (TIDAK BERUBAH)
-# =================================================================
-elif menu == "Skenario 2: TESTING BATCH":
-    st.subheader("📂 Upload File CSV")
-    st.info("Upload file CSV yang sudah diproses untuk diuji dengan model yang ada.")
-    uploaded_file = st.file_uploader("Upload dataset CSV", type=["csv"], key="upload_csv_s2")
+# -----------------------------------------------------------------------------
+# SKENARIO 2: TESTING BATCH
+# -----------------------------------------------------------------------------
+elif menu == "📊 Testing Batch":
+    st.markdown("### 📂 Upload File CSV (Evaluasi Lengkap)")
+    
+    uploaded_file = st.file_uploader("Upload dataset CSV terproses", type=["csv"], key="upload_csv_s2")
 
     if uploaded_file and MODEL_LOADED:
         df = pd.read_csv(uploaded_file)
@@ -338,183 +426,172 @@ elif menu == "Skenario 2: TESTING BATCH":
             try:
                 df['TANGGAL'] = pd.to_datetime(df['TANGGAL'])
                 df = df.sort_values(by='TANGGAL').reset_index(drop=True)
-            except:
-                st.warning("Kolom TANGGAL mungkin tidak dalam format tanggal yang benar. Diabaikan untuk visualisasi.")
+            except: pass
 
         if 'Lindi' not in df.columns:
-             st.error("❌ File CSV harus memiliki kolom 'Lindi' (nilai target) untuk evaluasi.")
+             st.error("❌ File CSV harus memiliki kolom 'Lindi'.")
         else:
             max_index = len(df) - 1
-            
-            st.markdown("### ⚙️ Atur Rentang Data yang Ditampilkan")
-            start_index, end_index = st.slider(
-                "Pilih Rentang Indeks Data:",
-                0, max_index, (0, max_index)
-            )
-            
+            st.markdown("#### 🎚️ Atur Rentang Data")
+            start_index, end_index = st.slider("", 0, max_index, (0, max_index))
             df_filtered = df.iloc[start_index:end_index+1]
 
             if not df_filtered.empty:
-                st.dataframe(df_filtered, use_container_width=True)
+                with st.expander("📄 Lihat Dataframe Terfilter"):
+                    st.dataframe(df_filtered, use_container_width=True)
 
                 try:
                     X, y_true, X_scaled = scale_features(df_filtered, scaler_X)
+                    y_pred = model.predict(X_scaled)
                 except KeyError as e:
-                    st.error(f"❌ Error: Kolom fitur {e} tidak ditemukan di file yang diunggah. Pastikan file sudah diproses OHE.")
-                    st.stop()
-                    
-                y_pred = model.predict(X_scaled)
+                    st.error(f"Kolom fitur {e} tidak ditemukan."); st.stop()
                 
-                # --- Perhitungan Metrik ---
                 mse = mean_squared_error(y_true, y_pred)
                 rmse = np.sqrt(mse)
                 mae = mean_absolute_error(y_true, y_pred)
                 r2 = r2_score(y_true, y_pred)
-                
                 pearson_r, p_value = pearsonr(y_true.values.flatten(), y_pred.flatten())
 
-                # --- Tampilan Metrik ---
-                st.markdown("### 📊 Hasil Evaluasi Model")
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("📉 MSE", f"{mse:.2f}")
-                    st.metric("📊 RMSE", f"{rmse:.2f}")
-                with col2:
-                    st.metric("📏 MAE", f"{mae:.2f}")
-                    st.metric("📈 R² Score", f"{r2:.4f}")
-                with col3:
-                    st.metric("✅ Pearson's r", f"{pearson_r:.4f}")
-                    st.metric("🔬 P-value", f"{p_value:.2e}")
-                
-                st.markdown("""
-                    <div style='margin-top: 10px; font-size: 14px;'>
-                    <ul>
-                        <li><strong>MSE</strong> (Mean Squared Error): Rata-rata kuadrat dari selisih antara prediksi dan aktual.</li>
-                        <li><strong>RMSE</strong> (Root MSE): Akar dari MSE. Semakin kecil, semakin akurat prediksi.</li>
-                        <li><strong>MAE</strong> (Mean Absolute Error): Rata-rata selisih absolut antara prediksi dan aktual.</li>
-                        <li><strong>R2</strong> (R-squared): Proporsi varians dalam variabel terikat (dependen) yang dapat dijelaskan oleh model regresi linier, melalui variabel bebas (independen). Nilainya berkisar antara 0 hingga 1.</li>
-                        <li><strong>Pearson's r</strong>: Mengukur korelasi linier antara aktual dan prediksi.</li>
-                        <li><strong>P-value</strong>: Menunjukkan signifikansi statistik korelasi. P-value < 0.05 biasanya signifikan.</li>
-                    </ul>
-                    </div>
-                    """, unsafe_allow_html=True)
                 st.markdown("---")
+                st.markdown("### 📊 Hasil Evaluasi Statistik")
+                col1, col2, col3 = st.columns(3)
+                col1.metric("📉 MSE", f"{mse:.2f}")
+                col2.metric("📊 RMSE", f"{rmse:.2f}")
+                col3.metric("📏 MAE", f"{mae:.2f}")
                 
-                # Plot 1: Prediksi vs Aktual
-                st.markdown("### 📈 Time Series: Prediksi vs Aktual")
+                col4, col5, col6 = st.columns(3)
+                col4.metric("📈 R² Score", f"{r2:.4f}")
+                col5.metric("✅ Pearson's r", f"{pearson_r:.4f}")
+                col6.metric("🔬 P-value", f"{p_value:.2e}")
+
+                st.markdown("---")
+
+                # Grafik 1
+                st.markdown("#### 1. 📈 Time Series: Prediksi vs Aktual")
                 fig1, ax1 = plt.subplots(figsize=(10, 5))
-                ax1.plot(df_filtered.index, y_true, label="Aktual", marker="o", linestyle='-', markersize=4)
-                ax1.plot(df_filtered.index, y_pred, label="Prediksi", marker="x", linestyle='--', markersize=4)
-                ax1.set_xlabel("Indeks Data")
-                ax1.set_ylabel("Lindi (m³/hari)")
-                ax1.set_title("Time Series Prediksi vs Aktual")
-                ax1.legend()
-                ax1.grid(True)
+                fig1.patch.set_alpha(0); ax1.patch.set_alpha(0)
+                ax1.plot(df_filtered.index, y_true, label="Aktual", marker="o", linestyle='-', markersize=4, color='#00E676', alpha=0.7)
+                ax1.plot(df_filtered.index, y_pred, label="Prediksi", marker="x", linestyle='--', markersize=4, color='#00B4DB')
+                ax1.set_xlabel("Indeks Data", color='#ccc'); ax1.set_ylabel("Lindi (m³/hari)", color='#ccc')
+                ax1.tick_params(colors='#ccc')
+                ax1.spines['bottom'].set_color('#555'); ax1.spines['left'].set_color('#555')
+                ax1.spines['top'].set_visible(False); ax1.spines['right'].set_visible(False)
+                ax1.legend(facecolor='#1c1f26', labelcolor='white', edgecolor='#333')
+                ax1.grid(True, linestyle=':', color='white', alpha=0.1)
                 st.pyplot(fig1)
 
-                # Plot 2: Scatter Plot Aktual vs Prediksi
-                st.markdown("### 📌 Scatter Plot: Prediksi vs Aktual")
-                fig2, ax2 = plt.subplots(figsize=(6, 5))
-                ax2.scatter(y_true, y_pred, alpha=0.7, color="green", edgecolor="k")
-                ax2.plot([y_true.min(), y_true.max()], [y_true.min(), y_true.max()], 'r--', lw=2)
-                ax2.set_xlabel("Aktual (m³/hari)")
-                ax2.set_ylabel("Prediksi (m³/hari)")
-                ax2.set_title(f"Scatter Plot (r = {pearson_r:.2f})")
-                ax2.grid(True)
+                # Grafik 2
+                st.markdown("#### 2. 📌 Scatter Plot: Korelasi")
+                fig2, ax2 = plt.subplots(figsize=(8, 6))
+                fig2.patch.set_alpha(0); ax2.patch.set_alpha(0)
+                ax2.scatter(y_true, y_pred, alpha=0.7, color="#FFC107", edgecolor="white", s=60)
+                ax2.plot([y_true.min(), y_true.max()], [y_true.min(), y_true.max()], 'w--', lw=2, label="Perfect Fit")
+                ax2.set_xlabel("Aktual (m³/hari)", color='#ccc'); ax2.set_ylabel("Prediksi (m³/hari)", color='#ccc')
+                ax2.set_title(f"Pearson r = {pearson_r:.2f}", color='#ccc')
+                ax2.tick_params(colors='#ccc')
+                ax2.spines['bottom'].set_color('#555'); ax2.spines['left'].set_color('#555')
+                ax2.spines['top'].set_visible(False); ax2.spines['right'].set_visible(False)
+                ax2.legend(facecolor='#1c1f26', labelcolor='white', edgecolor='#333')
+                ax2.grid(True, linestyle=':', color='white', alpha=0.1)
                 st.pyplot(fig2)
                 
-                # Plot 3: Error Absolut
-                st.markdown("### 📊 Error Absolut")
+                # Grafik 3
+                st.markdown("#### 3. 📊 Error Absolut per Data")
                 fig3, ax3 = plt.subplots(figsize=(10, 5)) 
-                
+                fig3.patch.set_alpha(0); ax3.patch.set_alpha(0)
                 if 'TANGGAL' in df_filtered.columns:
                     monthly_labels = df_filtered['TANGGAL'].dt.strftime('%b-%y')
                     month_indices = monthly_labels.drop_duplicates().index.tolist()
                     month_names = monthly_labels.loc[month_indices].tolist()
-
-                    ax3.set_xlabel("Bulan")
+                    ax3.set_xlabel("Bulan", color='#ccc')
                     ax3.set_xticks(month_indices)
-                    ax3.set_xticklabels(month_names, rotation=90)
-                    
+                    ax3.set_xticklabels(month_names, rotation=45, ha='right', color='#ccc')
                     for i in range(len(month_indices) - 1):
                         start_of_next_month = month_indices[i+1]
-                        ax3.axvline(x=start_of_next_month - 0.5, color='red', linestyle='--', linewidth=1)
+                        ax3.axvline(x=start_of_next_month - 0.5, color='white', linestyle='--', linewidth=0.5, alpha=0.3)
                 else:
-                    ax3.set_xlabel("Indeks Data")
+                    ax3.set_xlabel("Indeks Data", color='#ccc')
+                    ax3.tick_params(axis='x', colors='#ccc')
 
-                ax3.bar(df_filtered.index, np.abs(y_true.values.flatten() - y_pred.flatten()))
-                ax3.set_ylabel("Error Absolut (m³/hari)")
-                ax3.set_title("Error Absolut")
-                ax3.grid(axis='y')
-                
+                errors = np.abs(y_true.values.flatten() - y_pred.flatten())
+                ax3.bar(df_filtered.index, errors, color='#FF5252', alpha=0.8)
+                ax3.set_ylabel("Error Absolut (m³/hari)", color='#ccc')
+                ax3.tick_params(axis='y', colors='#ccc')
+                ax3.spines['bottom'].set_color('#555'); ax3.spines['left'].set_color('#555')
+                ax3.spines['top'].set_visible(False); ax3.spines['right'].set_visible(False)
+                ax3.grid(axis='y', linestyle=':', color='white', alpha=0.1)
                 st.pyplot(fig3)
             else:
-                st.warning("Rentang data yang dipilih tidak valid. Silakan pilih rentang yang lain.")
+                st.warning("⚠️ Rentang data kosong.")
 
+# -----------------------------------------------------------------------------
+# SKENARIO 3: TESTING SINGLE
+# -----------------------------------------------------------------------------
+elif menu == "📝 Testing Single":
+    if not MODEL_LOADED: st.stop()
+    
+    st.markdown("### 📝 Input Parameter Harian")
+    
+    with st.container():
+        st.markdown("<div style='background:rgba(255,255,255,0.02); padding:25px; border-radius:15px; border: 1px solid rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            tn = st.number_input("TN (Suhu Min)", 22.20)
+            tx = st.number_input("TX (Suhu Maks)", 31.06)
+            tavg = st.number_input("TAVG (Suhu Rata)", 25.21)
+        with c2:
+            rh = st.number_input("RH_AVG (Kelembaban)", 83.32)
+            rr = st.number_input("RR (Curah Hujan)", 10.13)
+            ss = st.number_input("SS (Matahari)", 5.26)
+        with c3:
+            ffx = st.number_input("FF_X (Angin Max)", 2.74)
+            dddx = st.number_input("DDD_X (Arah Max)", 198.0)
+            ffavg = st.number_input("FF_AVG (Angin Rata)", 1.41)
+            
+        st.markdown("---")
+        st.markdown("#### Arah Angin Dominan")
+        wind_opts = ['DDD_CAR_C', 'DDD_CAR_E', 'DDD_CAR_NW', 'DDD_CAR_S', 'DDD_CAR_SE', 'DDD_CAR_SW', 'DDD_CAR_W']
+        dom_dir = st.radio("Pilih arah:", wind_opts, horizontal=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-# =================================================================
-# SKENARIO 3: INPUT MANUAL (HARIAN) (TIDAK BERUBAH)
-# =================================================================
-elif menu == "Skenario 3: TESTING SINGLE":
-    if not MODEL_LOADED:
-        st.stop()
-        
-    st.markdown("### 📥 Input Fitur Prediksi Harian Secara Manual")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    feature_values = {}
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        feature_values['TN'] = st.number_input("TN (Suhu Min)", value=22.20, step=0.1)
-        feature_values['TX'] = st.number_input("TX (Suhu Maks)", value=31.06, step=0.1)
-        feature_values['TAVG'] = st.number_input("TAVG (Suhu Rata-rata)", value=25.21, step=0.1)
-    
-    with col2:
-        feature_values['RH_AVG'] = st.number_input("RH_AVG (Kelembaban Rata-rata)", value=83.32, step=0.1)
-        feature_values['RR'] = st.number_input("RR (Curah Hujan)", value=10.13, step=0.1)
-        feature_values['SS'] = st.number_input("SS (Durasi Matahari)", value=5.26, step=0.1)
-    
-    with col3:
-        feature_values['FF_X'] = st.number_input("FF_X (Kec. Angin Maks)", value=2.74, step=0.1)
-        feature_values['DDD_X'] = st.number_input("DDD_X (Arah Angin Maks)", value=198.01, step=1.0)
-        feature_values['FF_AVG'] = st.number_input("FF_AVG (Kec. Angin Rata-rata)", value=1.41, step=0.1)
-    
-    st.markdown("---")
-    st.markdown("#### Input Arah Angin (Harian)")
-    st.info("Pilih satu arah angin yang paling dominan untuk hari ini.")
-
-    wind_directions = ['DDD_CAR_C', 'DDD_CAR_E', 'DDD_CAR_NW', 'DDD_CAR_S', 'DDD_CAR_SE', 'DDD_CAR_SW', 'DDD_CAR_W']
-    dominant_direction = st.radio("Arah Angin Dominan", options=wind_directions, index=0, horizontal=True)
-    
-    for direction in wind_directions:
-        feature_values[direction] = 0
-    
-    feature_values[dominant_direction] = 1
-    
-    col_empty1, col_button, col_empty2 = st.columns([1, 2, 1])
-    with col_button:
-        prediksi_clicked = st.button("🔍 Prediksi Lindi", key="prediksi_harian", use_container_width=True)
-    
-    if prediksi_clicked:
+    if st.button("🔍 HITUNG PREDIKSI LINDI", use_container_width=True):
         try:
-            expected_columns = SCALER_FEATURES 
+            feat = {
+                'TN': tn, 'TX': tx, 'TAVG': tavg, 'RH_AVG': rh, 'RR': rr, 'SS': ss,
+                'FF_X': ffx, 'DDD_X': dddx, 'FF_AVG': ffavg
+            }
+            for w in wind_opts: feat[w] = 0
+            feat[dom_dir] = 1
             
-            input_data = {key: feature_values[key] for key in expected_columns}
-
-            X_manual_df = pd.DataFrame([input_data])
+            df_in = pd.DataFrame([feat])
+            df_in = df_in[SCALER_FEATURES]
+            X_sc = scaler_X.transform(df_in)
+            y_pred = model.predict(X_sc)[0]
             
-            X_manual_scaled = scaler_X.transform(X_manual_df)
-            
-            y_pred = model.predict(X_manual_scaled)
-            
+            st.markdown("---")
             st.markdown(
                 f"""
-                <div style='background-color:#007BFF;padding:20px;border-radius:10px;margin-top:20px; color: white;'>
-                    <h3 style='text-align:center;'>✅ Prediksi Volume Air Lindi:</h3>
-                    <h2 style='text-align:center;'>{y_pred[0]:.2f} m³/hari</h2>
+                <div style='
+                    animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+                    background: linear-gradient(135deg, #00C6FF 0%, #0072FF 100%);
+                    color: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    text-align: center;
+                    box-shadow: 0 10px 40px rgba(0, 114, 255, 0.4);
+                    margin-top: 15px;
+                    border: 1px solid rgba(255,255,255,0.2);
+                '>
+                    <h3 style='color: white !important; margin:0; opacity:0.9; letter-spacing: 1px;'>ESTIMASI VOLUME LINDI</h3>
+                    <h1 style='font-size: 4.5em; margin: 15px 0; font-weight: 800; text-shadow: 0px 0px 20px rgba(255,255,255,0.5); color: white !important;'>
+                        {y_pred:.2f}
+                    </h1>
+                    <p style='font-size: 1.3em; font-weight: 600; color: white !important;'>Meter Kubik (m³) / Hari</p>
                 </div>
-                """, unsafe_allow_html=True
+                """, 
+                unsafe_allow_html=True
             )
         except Exception as e:
-            st.error(f"❌ Terjadi error saat prediksi. Pastikan semua input sudah diisi dengan benar. Error: {str(e)}")
+            st.error(f"Gagal memprediksi: {str(e)}")

@@ -74,7 +74,7 @@ def set_style(png_file):
                 animation: slideDownSmooth 1.2s cubic-bezier(0.23, 1, 0.32, 1) both;
                 
                 /* Warna Kaca Gelap Transparan (Tengahnya) */
-                background-color: rgba(28, 31, 38, 0.6); 
+                background-color: rgba(28, 31, 38, 0.2); 
                 
                 /* --- PERUBAHAN DISINI (MEMBUAT LEBAR PENUH) --- */
                 max-width: 100vw !important;  /* Paksa lebar maksimum seukuran layar */
@@ -84,8 +84,8 @@ def set_style(png_file):
                 border-radius: 20px;
                 padding: 2.5rem 3rem;
                 margin-top: 2rem;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-                backdrop-filter: blur(15px);
+                box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+                backdrop-filter: blur(10px);
                 border: none; /* Border asli dimatikan */
             }}
 
@@ -114,7 +114,7 @@ def set_style(png_file):
 
             /* --- SIDEBAR --- */
             section[data-testid="stSidebar"] {{
-                background-color: rgba(20, 23, 28, 0.6); /* Kaca Gelap */
+                background-color: rgba(20, 23, 28, 0.4); /* Kaca Gelap */
                 backdrop-filter: blur(10px);
                 border: none; /* Hapus border biasa */
                 position: relative; /* Wajib agar neon menempel */

@@ -14,7 +14,7 @@ import base64
 # 1. KONFIGURASI HALAMAN & CSS
 # =============================================================================
 st.set_page_config(
-    page_title="Leachate AI Pro",
+    page_title="Leachate Prediction",
     page_icon="💧",
     layout="wide",
     initial_sidebar_state="auto"
@@ -594,4 +594,5 @@ elif menu == "📝 Testing Single":
             )
         except Exception as e:
             st.error(f"Gagal memprediksi: {str(e)}")
+
 

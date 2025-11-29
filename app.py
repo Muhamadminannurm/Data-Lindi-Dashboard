@@ -903,15 +903,28 @@ elif menu == "🔍 Spesifikasi Model":
         c_arch1, c_arch2 = st.columns([1, 1])
         
         with c_arch1:
-            st.markdown("**Konfigurasi Jaringan (Layer):**")
-            st.code("""
-Input Layer  : 16 Neuron (Fitur Cuaca & Arah Angin)
-Hidden Layer 1 : 64 Neuron (Aktivasi: ReLU)
-Hidden Layer 2 : 32 Neuron (Aktivasi: ReLU)
-Output Layer : 1 Neuron (Aktivasi: Linear)
-Optimizer    : Adam (Adaptive Moment Estimation)
-Loss Function: Mean Squared Error (MSE)
-            """, language="yaml")
+            st.markdown("""
+            <div style='
+                background-color: #0e1117; 
+                padding: 15px; 
+                border-radius: 10px; 
+                border: 1px solid rgba(255, 255, 255, 0.1); 
+                font-family: monospace;
+                font-size: 0.9em;
+                line-height: 1.5;
+                color: #e0e0e0;
+                '>
+                <div style='margin-bottom: 8px; font-weight: bold; color: #00E676; border-bottom: 1px solid #333; padding-bottom: 5px;'>
+                   ⚙️ Konfigurasi Jaringan:
+                </div>
+                Input Layer&nbsp;&nbsp;&nbsp;: 16 Neuron (Fitur Cuaca & Angin)<br>
+                Hidden Layer 1: 64 Neuron (Aktivasi: ReLU)<br>
+                Hidden Layer 2: 32 Neuron (Aktivasi: ReLU)<br>
+                Output Layer&nbsp;&nbsp;: 1 Neuron (Aktivasi: Linear)<br>
+                Optimizer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Adam (Adaptive Moment Est.)<br>
+                Loss Function&nbsp;: Mean Squared Error (MSE)
+            </div>
+            """, unsafe_allow_html=True)
             
         with c_arch2:
             st.markdown("**Visualisasi Arsitektur:**")
@@ -956,4 +969,5 @@ Loss Function: Mean Squared Error (MSE)
         ], columns=["Kode Variabel", "Nama Parameter", "Definisi"])
         
         st.table(data_dict)
+
 

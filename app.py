@@ -18,7 +18,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 # 1. KONFIGURASI HALAMAN & CSS
 # =============================================================================
 st.set_page_config(
-    page_title="Leachate AI Pro",
+    page_title="Leachate Prediction",
     page_icon="💧",
     layout="wide",
     initial_sidebar_state="auto"
@@ -956,3 +956,4 @@ Loss Function: Mean Squared Error (MSE)
         ], columns=["Kode Variabel", "Nama Parameter", "Definisi"])
         
         st.table(data_dict)
+

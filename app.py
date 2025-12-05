@@ -18,7 +18,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 # 1. KONFIGURASI HALAMAN & CSS
 # =============================================================================
 st.set_page_config(
-    page_title="Leachate Prediction",
+    page_title="Leachate AI Pro",
     page_icon="💧",
     layout="wide",
     initial_sidebar_state="auto"
@@ -109,10 +109,51 @@ def set_style(png_file):
                 100% {{ transform: scale(1); }}
             }}
 
-            /* --- TEKS GLOBAL --- */
-            h1, h2, h3, h4, h5, p, label, span, div.stMarkdown, div.stMetricLabel, li, div[data-testid="stDialog"] {{
-                color: #e0e0e0 !important;
+            /* --- TEKS GLOBAL (UPDATED: ALL WHITE) --- */
+            h1, h2, h3, h4, h5, p, label, span, div.stMarkdown, div.stMetricLabel, li, div[data-testid="stDialog"], strong, small, div {{
+                color: #ffffff !important;
                 font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            }}
+
+            /* --- MODIFIKASI: FILE UPLOADER TEMA GELAP --- */
+            div[data-testid="stFileUploader"] section {{
+                background-color: #111111 !important; /* Background Hitam Pekat */
+                border: 1px dashed #555 !important;
+            }}
+            /* Paksa semua teks di dalam uploader jadi putih */
+            div[data-testid="stFileUploader"] section span, 
+            div[data-testid="stFileUploader"] section small, 
+            div[data-testid="stFileUploader"] section div {{
+                color: #ffffff !important;
+            }}
+            /* Tombol "Browse files" jadi gelap */
+            div[data-testid="stFileUploader"] button {{
+                background-color: #333 !important;
+                color: white !important;
+                border: 1px solid #555 !important;
+            }}
+
+            /* PAKSA SEMUA Teks di dalam Uploader jadi Putih */
+                div[data-testid="stFileUploader"] section * {{
+                    color: #ffffff !important;
+                }}
+
+            /* --- MODIFIKASI: TOMBOL DOWNLOAD JADI HITAM --- */
+            /* Target khusus tombol Download agar beda dengan tombol proses biasa */
+            div.stDownloadButton > button {{
+                background-color: #000000 !important; /* Hitam */
+                color: #ffffff !important;      /* Teks Putih */
+                border: 1px solid #444 !important; /* Garis tepi abu tipis */
+                border-radius: 12px;
+                padding: 0.6rem 1.5rem;
+                font-weight: 700;
+                transition: all 0.3s;
+            }}
+            /* Efek saat mouse diarahkan ke tombol download */
+            div.stDownloadButton > button:hover {{
+                border-color: #00C6FF !important; /* Border jadi biru neon */
+                color: #00C6FF !important;        /* Teks jadi biru neon */
+                background-color: #1a1a1a !important;
             }}
 
             /* --- 1. KEYFRAMES ANIMASI NEON BERJALAN --- */
@@ -141,7 +182,7 @@ def set_style(png_file):
                 animation: slideDownSmooth 1.2s cubic-bezier(0.23, 1, 0.32, 1) both;
                 
                 /* Warna Kaca Gelap Transparan (Tengahnya) */
-                background-color: rgba(28, 31, 38, 0.2); 
+                background-color: rgba(28, 31, 38, 0.4); 
                 
                 /* --- PERUBAHAN DISINI (MEMBUAT LEBAR PENUH) --- */
                 max-width: 100vw !important;  /* Paksa lebar maksimum seukuran layar */
@@ -181,7 +222,7 @@ def set_style(png_file):
 
             /* --- SIDEBAR --- */
             section[data-testid="stSidebar"] {{
-                background-color: rgba(20, 23, 28, 0.4); /* Kaca Gelap */
+                background-color: rgba(20, 23, 28, 0.6); /* Kaca Gelap */
                 backdrop-filter: blur(10px);
                 border: none; /* Hapus border biasa */
                 position: relative; /* Wajib agar neon menempel */
@@ -267,15 +308,60 @@ def set_style(png_file):
             div[role="dialog"] button[aria-label="Close"] {{
                 display: none !important;
             }}
+
+            
+
+            /* --- FIX: DROPDOWN MENU (AGAR TIDAK PUTIH) --- */
+
+            /* 1. Menargetkan Container Utama Dropdown */
+            ul[data-baseweb="menu"],
+            div[role="listbox"],
+            nav[data-baseweb="menu"] {{
+                background-color: #0e1117 !important; /* Hitam Gelap */
+                border: 1px solid #333 !important;
+            }}
+            div[data-baseweb="select"] svg {{
+                fill: #ffffff !important;  /* Warna isi ikon jadi Putih */
+                color: #ffffff !important; /* Warna garis ikon jadi Putih */
+            }}
+
+            /* 2. Menargetkan Item Pilihan (Option) */
+            li[data-baseweb="option"],
+            li[role="option"] {{
+                background-color: #0e1117 !important; /* Background Item Hitam */
+                color: #ffffff !important;            /* Teks Putih */
+            }}
+
+            /* 3. Menargetkan Teks Spesifik di dalam Pilihan */
+            li[data-baseweb="option"] div, 
+            li[data-baseweb="option"] span {{
+                color: #ffffff !important; 
+            }}
+
+            /* 4. Efek Hover (Saat mouse diarahkan) */
+            li[data-baseweb="option"]:hover,
+            li[role="option"]:hover,
+            li[role="option"][aria-selected="true"] {{
+                background-color: #00C6FF !important; /* Biru Neon */
+            }}
+            
+            /* 5. Ubah warna teks jadi hitam SAAT HOVER agar terbaca di background biru */
+            li[data-baseweb="option"]:hover div,
+            li[role="option"]:hover div,
+            li[role="option"][aria-selected="true"] div {{
+                color: #000000 !important;
+                font-weight: bold;
+            }}
+
             
             </style>
             """,
             unsafe_allow_html=True
         )
     except FileNotFoundError:
-        st.warning("⚠️ File 'TPA.jpg' tidak ditemukan.")
+        st.warning("⚠️ File 'TPAA.png' tidak ditemukan.")
 
-set_style('TPA.jpg')
+set_style('TPAA.png')
 
 # =============================================================================
 # 2. LOGIKA BACKEND & MODEL
@@ -359,7 +445,7 @@ with st.sidebar:
 
 # --- STATE MANAGEMENT ---
     # Perbarui opsi menu (Tambahkan "🔍 Spesifikasi Model")
-    menu_options = ["🏠 Home", "🔍 Spesifikasi Model", "📊 Testing Batch", "📝 Testing Single"]
+    menu_options = ["🏠 Home", "📊 Testing Batch", "📝 Testing Single"]
     
     if "active_menu" not in st.session_state:
         st.session_state["active_menu"] = menu_options[0]
@@ -417,12 +503,11 @@ with st.sidebar:
         
         # DEFINISI MENU AMAN (Tidak perlu konfirmasi reset)
         # Menu 0: Home
-        # Menu 1: Spesifikasi Model (Dokumentasi) -> Tidak ada input user yg perlu direset
-        safe_menus = [menu_options[0], menu_options[1]]
+        safe_menus = menu_options[0]
         
         # LOGIKA PERPINDAHAN
         if current in safe_menus:
-            # Jika dari Home atau Dokumentasi -> Langsung pindah
+            # Jika dari Home 
             st.session_state["active_menu"] = target
             
         elif target != current:
@@ -468,32 +553,99 @@ st.markdown(
 # -----------------------------------------------------------------------------
 # HALAMAN: HOME
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# HALAMAN: HOME (UPDATED)
+# -----------------------------------------------------------------------------
 if menu == "🏠 Home":
-    # Konten Home (Placeholder)
+    # --- HERO SECTION ---
     st.markdown(
         """
-        <div style='text-align: center; padding: 20px;'>
-            <h2 style='color: #e0e0e0;'>Selamat Datang di Sistem Cerdas TPA</h2>
-            <p style='font-size: 18px; color: #ccc; margin-top: 10px;'>
-                Sistem ini dirancang untuk membantu memprediksi volume air lindi (leachate) 
-                di Tempat Pembuangan Akhir menggunakan algoritma Jaringan Syaraf Tiruan (ANN).
+        <div style='text-align: center; padding: 30px 20px;'>
+            <h2 style='color: #00C6FF; margin-bottom: 10px;'>Selamat Datang di Sistem Cerdas TPA</h2>
+            <p style='font-size: 18px; color: #e0e0e0; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
+                Sistem prediksi volume air lindi (leachate) berbasis <i>Artificial Intelligence</i> ini dikembangkan 
+                untuk membantu pengelolaan lingkungan di Tempat Pembuangan Akhir (TPA) Supit Urang.
             </p>
-            <br>
-            <div style='background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); display: inline-block; text-align: left;'>
-                <h4 style='color: #00C6FF; margin-bottom: 15px;'>🔍 Fitur Utama:</h4>
-                <ul style='list-style-type: none; padding: 0; color: #ddd;'>
-                    <li style='margin-bottom: 10px;'>📊 <b>Testing Batch:</b> Evaluasi model dengan dataset besar (CSV).</li>
-                    <li style='margin-bottom: 10px;'>📝 <b>Testing Single:</b> Prediksi harian cepat dengan input manual.</li>
-                    <li style='margin-bottom: 10px;'>📈 <b>Visualisasi:</b> Grafik interaktif Time Series dan Scatter Plot.</li>
-                </ul>
-            </div>
-            <br><br>
-            <p style='font-size: 14px; color: #888;'>Silakan pilih menu di sidebar kiri untuk memulai analisis.</p>
         </div>
         """, 
         unsafe_allow_html=True
     )
 
+    st.markdown("---")
+
+    # --- INFORMASI MODEL & INPUT ---
+    col_info1, col_info2 = st.columns([1, 1], gap="large")
+
+    with col_info1:
+        st.markdown("### 🧠 Spesifikasi Model AI")
+        st.markdown(
+            """
+            <div style='background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); height: 100%;'>
+                <p style='color: #ccc; margin-bottom: 15px;'>
+                    Model ini dibangun menggunakan algoritma <b>Deep Learning</b> dengan arsitektur 
+                    <b>Multilayer Perceptron (MLP)</b> Regressor.
+                </p>
+                <ul style='color: #e0e0e0; padding-left: 20px; line-height: 1.8;'>
+                    <li><b>Metode:</b> Backpropagation Neural Network</li>
+                    <li><b>Arsitektur:</b> 2 Hidden Layers (64 x 64 Neuron)</li>
+                    <li><b>Fungsi Aktivasi:</b> Tanh (Hyperbolic Tangent)</li>
+                    <li><b>Optimizer:</b> Adam Solver</li>
+                </ul>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+
+    with col_info2:
+        st.markdown("### 📋 Parameter Input (Fitur)")
+        st.markdown(
+            """
+            <div style='background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); height: 100%;'>
+                <p style='color: #ccc; margin-bottom: 15px;'>
+                    Prediksi dilakukan berdasarkan <b>10 parameter cuaca harian</b> berikut:
+                </p>
+                <table style='width:100%; border-collapse: collapse; color: #e0e0e0; font-size: 0.9em;'>
+                    <tr style='border-bottom: 1px solid #444;'>
+                        <td style='padding: 5px; color: #00C6FF;'><b>TN, TX, TAVG</b></td>
+                        <td style='padding: 5px;'>Suhu Min, Max, & Rata-rata (°C)</td>
+                    </tr>
+                    <tr style='border-bottom: 1px solid #444;'>
+                        <td style='padding: 5px; color: #00C6FF;'><b>RH_AVG</b></td>
+                        <td style='padding: 5px;'>Kelembaban Rata-rata (%)</td>
+                    </tr>
+                    <tr style='border-bottom: 1px solid #444;'>
+                        <td style='padding: 5px; color: #00C6FF;'><b>RR</b></td>
+                        <td style='padding: 5px;'>Curah Hujan (mm)</td>
+                    </tr>
+                    <tr style='border-bottom: 1px solid #444;'>
+                        <td style='padding: 5px; color: #00C6FF;'><b>SS</b></td>
+                        <td style='padding: 5px;'>Lama Penyinaran Matahari (Jam)</td>
+                    </tr>
+                    <tr style='border-bottom: 1px solid #444;'>
+                        <td style='padding: 5px; color: #00C6FF;'><b>FF_X, FF_AVG</b></td>
+                        <td style='padding: 5px;'>Kecepatan Angin Max & Rata-rata (m/s)</td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 5px; color: #00C6FF;'><b>DDD_X, DDD_CAR</b></td>
+                        <td style='padding: 5px;'>Arah Angin (Derajat & Mata Angin)</td>
+                    </tr>
+                </table>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- PANDUAN SINGKAT ---
+    with st.expander("📖 Penjelasan Sistem"):
+        st.markdown(
+            """
+            1. **Testing Batch:** Gunakan menu ini jika Anda memiliki file Excel/CSV berisi data historis cuaca untuk diprediksi sekaligus.
+            2. **Testing Single:** Gunakan menu ini untuk simulasi harian dengan memasukkan angka cuaca secara manual.
+            3. **Status Data:** Jika data Anda belum di-encoding (kolom arah angin masih berupa huruf N, SW, dll), gunakan fitur **Preprocessing** di menu Testing Batch.
+            """
+        )
 # -----------------------------------------------------------------------------
 # SKENARIO 2: TESTING BATCH (FINAL LOGIC - AUTO DETECT & PRE-PROCESSING TOOL)
 # -----------------------------------------------------------------------------
@@ -658,13 +810,50 @@ elif menu == "📊 Testing Batch":
                 
                 c1, c2 = st.columns(2)
                 with c1:
-                    fig_h, ax_h = plt.subplots(figsize=(6,4)); fig_h.patch.set_alpha(0); ax_h.patch.set_alpha(0)
-                    ax_h.hist(df[sel_col], bins=20, color='#00C6FF', edgecolor='white'); ax_h.axis('off'); ax_h.set_title(f"Hist {sel_col}", color='white')
+                    fig_h, ax_h = plt.subplots(figsize=(6,4))
+                    fig_h.patch.set_alpha(0) # Background transparan
+                    ax_h.patch.set_alpha(0)
+                    
+                    # Plotting Histogram
+                    ax_h.hist(df[sel_col], bins=20, color='#00C6FF', edgecolor='white')
+
+                    # Judul
+                    ax_h.set_title(f"Hist {sel_col}", color='white')
+                    
+                    # --- PERBAIKAN: MENAMPILKAN ANGKA SUMBU (AXIS) ---
+                    # 1. Atur warna angka (ticks) jadi putih
+                    ax_h.tick_params(axis='x', colors='white') 
+                    ax_h.tick_params(axis='y', colors='white')
+                    
+                    # 2. Atur warna garis kotak (spines) jadi putih
+                    for spine in ax_h.spines.values():
+                        spine.set_edgecolor('white')
+                        
+                    # 3. Label Sumbu (Opsional, agar jelas satuannya apa)
+                    ax_h.set_xlabel(sel_col, color='white')
+                    ax_h.set_ylabel("Frekuensi", color='white')
+
                     st.pyplot(fig_h)
                 with c2:
-                    fig_s, ax_s = plt.subplots(figsize=(6,4)); fig_s.patch.set_alpha(0); ax_s.patch.set_alpha(0)
-                    ax_s.scatter(df[sel_col], df[target_col], c='#00E676', alpha=0.6); ax_s.set_ylabel(target_col, color='white'); ax_s.tick_params(colors='white'); 
-                    for sp in ax_s.spines.values(): sp.set_edgecolor('#555')
+                    fig_s, ax_s = plt.subplots(figsize=(6,4))
+                    fig_s.patch.set_alpha(0) # Background transparan
+                    ax_s.patch.set_alpha(0)
+                    
+                    # Plot Scatter
+                    ax_s.scatter(df[sel_col], df[target_col], c='#00E676', alpha=0.6)
+                    
+                    # Judul Grafik
+                    ax_s.set_title(f"Hubungan {sel_col} vs {target_col}", color='white')
+                    
+                    # --- MENAMPILKAN NAMA KOLOM (LABEL) ---
+                    ax_s.set_xlabel(sel_col, color='white')    # Sumbu X (Fitur)
+                    ax_s.set_ylabel(target_col, color='white') # Sumbu Y (Target)
+                    
+                    # Ubah warna Angka & Garis Kotak jadi Putih
+                    ax_s.tick_params(colors='white')
+                    for sp in ax_s.spines.values(): 
+                        sp.set_edgecolor('white')
+                        
                     st.pyplot(fig_s)
                 
                 corr = df[sel_col].corr(df[target_col])
@@ -881,93 +1070,4 @@ elif menu == "📝 Testing Single":
                 )
                 st.plotly_chart(fig_gauge, use_container_width=True)
 
-        # -----------------------------------------------------------------------------
-# MENU BARU: SPESIFIKASI MODEL (DOKUMENTASI HKI)
-# -----------------------------------------------------------------------------
-elif menu == "🔍 Spesifikasi Model":
-    st.markdown("### 📘 Dokumentasi Teknis & Spesifikasi Model")
-    st.info("Halaman ini menyajikan detail arsitektur kecerdasan buatan dan variabel data yang digunakan dalam sistem.")
-
-    # Gunakan Tabs agar rapi
-    tab_spec1, tab_spec2, tab_spec3 = st.tabs(["🧠 Arsitektur ANN", "📊 Metrik Performa", "📚 Kamus Data"])
     
-    # --- TAB 1: ARSITEKTUR ---
-    with tab_spec1:
-        st.markdown("#### 1. Metode Algoritma")
-        st.write("""
-        Sistem ini menggunakan algoritma **Artificial Neural Network (ANN)** dengan metode pembelajaran 
-        *Backpropagation*. Model dilatih untuk mengenali pola non-linear antara parameter cuaca 
-        dan volume air lindi.
-        """)
-        
-        c_arch1, c_arch2 = st.columns([1, 1])
-        
-        with c_arch1:
-            st.markdown("""
-            <div style='
-                background-color: #0e1117; 
-                padding: 15px; 
-                border-radius: 10px; 
-                border: 1px solid rgba(255, 255, 255, 0.1); 
-                font-family: monospace;
-                font-size: 0.9em;
-                line-height: 1.5;
-                color: #e0e0e0;
-                '>
-                <div style='margin-bottom: 8px; font-weight: bold; color: #00E676; border-bottom: 1px solid #333; padding-bottom: 5px;'>
-                   ⚙️ Konfigurasi Jaringan:
-                </div>
-                Input Layer&nbsp;&nbsp;&nbsp;: 16 Neuron (Fitur Cuaca & Angin)<br>
-                Hidden Layer 1: 64 Neuron (Aktivasi: ReLU)<br>
-                Hidden Layer 2: 32 Neuron (Aktivasi: ReLU)<br>
-                Output Layer&nbsp;&nbsp;: 1 Neuron (Aktivasi: Linear)<br>
-                Optimizer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Adam (Adaptive Moment Est.)<br>
-                Loss Function&nbsp;: Mean Squared Error (MSE)
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with c_arch2:
-            st.markdown("**Visualisasi Arsitektur:**")
-            # Placeholder Image (Jika Anda punya gambar diagram ANN sendiri, ganti nama file-nya)
-            # Jika tidak punya, kode ini akan menampilkan teks placeholder rapi.
-            st.warning("Diagram Arsitektur: Input Layer ➡ Hidden Layers ➡ Output Layer")
-            
-            # Tips: Anda bisa screenshot diagram model dari jurnal/skripsi Anda, 
-            # simpan sebagai 'ann_diagram.png' dan uncomment baris bawah ini:
-            # st.image("ann_diagram.png", caption="Arsitektur Model ANN Leachate Pro", use_container_width=True)
-
-    # --- TAB 2: METRIK PERFORMA (STATIC DATA DARI TRAINING) ---
-    with tab_spec2:
-        st.markdown("#### 2. Evaluasi Model (Tahap Training)")
-        st.write("Berikut adalah performa model saat diuji menggunakan data validasi (Historical Data):")
-        
-        # Contoh data statis (Sesuaikan dengan hasil terbaik skripsi Anda)
-        col_m1, col_m2, col_m3 = st.columns(3)
-        col_m1.metric("Akurasi (R² Score)", "0.8278", help="Nilai mendekati 1.0 menunjukkan model sangat akurat")
-        col_m2.metric("Mean Squared Error", "5134.97", help="Rata-rata kesalahan kuadrat")
-        col_m3.metric("Korelasi (Pearson)", "0.91", help="Tingkat hubungan linear prediksi vs aktual")
-        
-        st.caption("*Data evaluasi berdasarkan dataset training tahun 2023-2024.")
-
-    # --- TAB 3: KAMUS DATA ---
-    with tab_spec3:
-        st.markdown("#### 3. Variabel Input (Fitur)")
-        st.write("Penjelasan kode variabel yang digunakan dalam dataset:")
-        
-        # Buat Dataframe Kamus Data
-        data_dict = pd.DataFrame([
-            ["TN", "Temperatur Minimum (°C)", "Suhu udara terendah yang tercatat dalam 24 jam."],
-            ["TX", "Temperatur Maksimum (°C)", "Suhu udara tertinggi yang tercatat dalam 24 jam."],
-            ["TAVG", "Temperatur Rata-rata (°C)", "Rata-rata suhu harian."],
-            ["RH_AVG", "Kelembaban Rata-rata (%)", "Persentase uap air di udara."],
-            ["RR", "Curah Hujan (mm)", "Intensitas hujan harian."],
-            ["SS", "Lama Penyinaran (Jam)", "Durasi matahari bersinar cerah dalam sehari."],
-            ["FF_X", "Kecepatan Angin Maks (m/s)", "Kecepatan angin tertinggi sesaat."],
-            ["DDD_X", "Arah Angin Maks (Derajat)", "Arah dari mana angin bertiup saat kecepatan maksimum."],
-            ["FF_AVG", "Kecepatan Angin Rata-rata", "Rata-rata kecepatan angin harian."],
-            ["Lindi", "Volume Air Lindi (m³)", "Target Prediksi: Volume limbah cair yang dihasilkan TPA."]
-        ], columns=["Kode Variabel", "Nama Parameter", "Definisi"])
-        
-        st.table(data_dict)
-
-

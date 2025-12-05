@@ -564,7 +564,7 @@ if menu == "🏠 Home":
             <h2 style='color: #00C6FF; margin-bottom: 10px;'>Selamat Datang di Sistem Cerdas TPA</h2>
             <p style='font-size: 18px; color: #e0e0e0; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
                 Sistem prediksi volume air lindi (leachate) berbasis <i>Machine Learning</i> ini dikembangkan 
-                untuk membantu pengelolaan lingkungan di Tempat Pembuangan Akhir (TPA) Supit Urang.
+                untuk membantu pengelolaan lingkungan di Tempat Pembuangan Akhir (TPA).
             </p>
         </div>
         """, 
@@ -1112,3 +1112,4 @@ elif menu == "📝 Testing Single":
                 st.plotly_chart(fig_gauge, use_container_width=True)
 
     
+

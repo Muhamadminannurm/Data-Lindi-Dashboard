@@ -887,34 +887,75 @@ elif menu == "📊 Testing Batch":
                         <li><b>MSE/RMSE/MAE:</b> Mengukur rata-rata kesalahan prediksi. Semakin <b>kecil</b> nilainya, semakin akurat model.</li>
                         <li><b>R² Score:</b> Seberapa baik model menjelaskan variasi data (Mendekati 1.0 = Sempurna).</li>
                         <li><b>Pearson's r:</b> Tingkat korelasi linear antara aktual dan prediksi (Mendekati 1.0 = Sangat Kuat).</li>
-                        <li><b>P-value:</b> Validitas statistik. Nilai < 0.05 menunjukkan korelasi signifikan (bukan kebetulan).</li>
                     </ul>
                 </div>
                 """, unsafe_allow_html=True)
-                st.markdown("#### 1. Time Series")
-                fig1, ax1 = plt.subplots(figsize=(10,4)); fig1.patch.set_alpha(0); ax1.patch.set_alpha(0)
-                ax1.plot(y.values, color='#00E676', label='Aktual'); ax1.plot(pred, color='#00C6FF', linestyle='--', label='Prediksi')
-                ax1.legend(facecolor='#1c1f26', labelcolor='white'); ax1.tick_params(colors='white'); 
-                for s in ax1.spines.values(): s.set_visible(False)
+
+                # --- GRAFIK 1: TIME SERIES ---
+                st.markdown("#### 1. Time Series (Aktual vs Prediksi)")
+                fig1, ax1 = plt.subplots(figsize=(10,4))
+                fig1.patch.set_alpha(0); ax1.patch.set_alpha(0)
+                
+                ax1.plot(y.values, color='#00E676', label='Aktual', linewidth=2)
+                ax1.plot(pred, color='#00C6FF', linestyle='--', label='Prediksi', linewidth=2)
+                
+                # Legend & Labels
+                ax1.legend(facecolor='#1c1f26', labelcolor='white', framealpha=1, edgecolor='white')
+                ax1.tick_params(colors='white', which='both')
+                
+                # MEMBUAT BINGKAI PUTIH (BORDER)
+                for spine in ax1.spines.values():
+                    spine.set_visible(True)       # Pastikan garis terlihat
+                    spine.set_edgecolor('white')  # Warna Putih
+                    spine.set_linewidth(1.5)      # Ketebalan Garis
+                
                 st.pyplot(fig1)
                 
+                # --- GRAFIK 2: SCATTER VALIDASI ---
                 st.markdown("#### 2. Scatter Validasi")
-                fig2, ax2 = plt.subplots(figsize=(8,6)); fig2.patch.set_alpha(0); ax2.patch.set_alpha(0)
-                ax2.scatter(y, pred, color='#FFC107', alpha=0.6); ax2.plot([y.min(), y.max()], [y.min(), y.max()], 'w--')
-                ax2.set_ylabel("Prediksi", color='white'); ax2.tick_params(colors='white'); 
-                for s in ax2.spines.values(): s.set_edgecolor('#555')
+                fig2, ax2 = plt.subplots(figsize=(8,6))
+                fig2.patch.set_alpha(0); ax2.patch.set_alpha(0)
+                
+                ax2.scatter(y, pred, color='#FFC107', alpha=0.7, edgecolors='white', s=60)
+                ax2.plot([y.min(), y.max()], [y.min(), y.max()], 'w--', linewidth=2, label='Perfect Fit')
+                
+                ax2.set_xlabel("Nilai Aktual", color='white', fontsize=10)
+                ax2.set_ylabel("Nilai Prediksi", color='white', fontsize=10)
+                ax2.tick_params(colors='white')
+                
+                # MEMBUAT BINGKAI PUTIH (BORDER)
+                for spine in ax2.spines.values():
+                    spine.set_visible(True)
+                    spine.set_edgecolor('white')
+                    spine.set_linewidth(1.5)
+
                 st.pyplot(fig2)
                 
-                st.markdown("#### 3. Error Absolut")
-                fig3, ax3 = plt.subplots(figsize=(10,4)); fig3.patch.set_alpha(0); ax3.patch.set_alpha(0)
+                # --- GRAFIK 3: ERROR ABSOLUT ---
+                st.markdown("#### 3. Plot Error Absolut")
+                fig3, ax3 = plt.subplots(figsize=(10,4))
+                fig3.patch.set_alpha(0); ax3.patch.set_alpha(0)
+                
                 errs = np.abs(y.values.flatten() - pred.flatten())
-                ax3.bar(range(len(errs)), errs, color='#FF5252', alpha=0.8); ax3.set_ylabel("Error", color='white'); ax3.tick_params(colors='white')
-                for s in ax3.spines.values(): s.set_visible(False)
+                ax3.bar(range(len(errs)), errs, color='#FF5252', alpha=0.9, edgecolor='white', linewidth=0.5)
+                
+                ax3.set_ylabel("Besar Error", color='white')
+                ax3.set_xlabel("Data Ke-", color='white')
+                ax3.tick_params(colors='white')
+                
+                # MEMBUAT BINGKAI PUTIH (BORDER)
+                for spine in ax3.spines.values():
+                    spine.set_visible(True)
+                    spine.set_edgecolor('white')
+                    spine.set_linewidth(1.5)
+                    
                 st.pyplot(fig3)
                 
                 st.markdown("---")
+                
+                # --- BAGIAN DOWNLOAD REPORT ---
                 try:
-                    # Generate Clean Figs for Report
+                    # Generate Clean Figs for Report (Helper charts tetap bersih untuk Word)
                     rc1 = create_clean_fig(y, None, "Time Series", 'line_compare', y2=pred, xlabel="Index", ylabel="Vol")
                     rc2 = create_clean_fig(y, pred, "Validasi Scatter", 'scatter_valid', xlabel="Aktual", ylabel="Prediksi")
                     rc3 = create_clean_fig(errs, None, "Error Plot", 'bar_error', xlabel="Index", ylabel="Error")
@@ -924,8 +965,8 @@ elif menu == "📊 Testing Batch":
                         'insight': f"Model R2: {r2:.4f}. Error rata-rata: {mae:.2f}",
                         'figs': [("Time Series", rc1), ("Scatter", rc2), ("Error", rc3)]
                     }
-                    # EDA pkg dummy for full report structure (reuse current tab 1 state logic or empty)
-                    # For safety, regenerate basic eda figs
+                    
+                    # Re-generate EDA dummy for full report
                     re1 = create_clean_fig(df[sel_col], None, f"Hist {sel_col}", 'hist')
                     re2 = create_clean_fig(df[sel_col], df[target_col], "Korelasi", 'scatter')
                     eda_pkg_full = {'col':sel_col, 'insight':insight, 'figs':[("Hist", re1), ("Scatter", re2)]}

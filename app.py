@@ -799,7 +799,7 @@ elif menu == "📊 Testing Batch":
             with st.expander("📄 Preview Data"): st.dataframe(df, use_container_width=True)
 
             # 4. TABS
-            tab_eda, tab_ai = st.tabs(["📊 EDA", "🚀 Prediksi AI"])
+            tab_eda, tab_ai = st.tabs(["📊 EDA", "🚀 Prediksi Lindi"])
             
             # --- TAB 1: EDA ---
             with tab_eda:
@@ -972,7 +972,7 @@ elif menu == "📊 Testing Batch":
                     eda_pkg_full = {'col':sel_col, 'insight':insight, 'figs':[("Hist", re1), ("Scatter", re2)]}
                     
                     doc_full = create_word_report("FULL", df.head(), eda_pkg_full, ann_pkg)
-                    st.download_button("📘 Download Laporan Lengkap (Word)", doc_full, "Laporan_Full.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", use_container_width=True)
+                    st.download_button("📘 Download Hasil Prediksi", doc_full, "Laporan_Full.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", use_container_width=True)
                 except Exception as e: st.error(f"Err Word: {e}")
                 
 # -----------------------------------------------------------------------------

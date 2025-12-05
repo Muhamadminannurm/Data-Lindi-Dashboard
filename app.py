@@ -18,7 +18,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 # 1. KONFIGURASI HALAMAN & CSS
 # =============================================================================
 st.set_page_config(
-    page_title="Leachate AI Pro",
+    page_title="Leachate Predictions",
     page_icon="💧",
     layout="wide",
     initial_sidebar_state="auto"
@@ -66,7 +66,7 @@ def create_word_report(report_type, df_sample, eda_data, ann_data=None):
 
     # BAGIAN 3: HASIL MODEL (Hanya jika tipe FULL)
     if report_type == 'FULL' and ann_data:
-        doc.add_heading('3. Hasil Prediksi AI (ANN)', level=1)
+        doc.add_heading('3. Hasil Prediksi (ANN)', level=1)
         
         # Tabel Metrik
         doc.add_heading('Metrik Evaluasi', level=2)
@@ -396,7 +396,7 @@ with st.sidebar:
     try:
         st.image("logo.png", use_container_width=True)
     except:
-        st.markdown("<h2 style='text-align:center; color:#00C6FF;'>AI LEACHATE</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center; color:#00C6FF;'>Leachate Predictions</h2>", unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -563,7 +563,7 @@ if menu == "🏠 Home":
         <div style='text-align: center; padding: 30px 20px;'>
             <h2 style='color: #00C6FF; margin-bottom: 10px;'>Selamat Datang di Sistem Cerdas TPA</h2>
             <p style='font-size: 18px; color: #e0e0e0; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
-                Sistem prediksi volume air lindi (leachate) berbasis <i>Artificial Intelligence</i> ini dikembangkan 
+                Sistem prediksi volume air lindi (leachate) berbasis <i>Machine Learning</i> ini dikembangkan 
                 untuk membantu pengelolaan lingkungan di Tempat Pembuangan Akhir (TPA) Supit Urang.
             </p>
         </div>
@@ -577,7 +577,7 @@ if menu == "🏠 Home":
     col_info1, col_info2 = st.columns([1, 1], gap="large")
 
     with col_info1:
-        st.markdown("### 🧠 Spesifikasi Model AI")
+        st.markdown("### 🧠 Spesifikasi Model")
         st.markdown(
             """
             <div style='background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); height: 100%;'>
@@ -760,7 +760,7 @@ elif menu == "📊 Testing Batch":
                 st.error(f"Gagal membaca file: {e}")
 
     # -------------------------------------------------------------------------
-    # SKENARIO B: DATA SIAP (ANALISIS AI)
+    # SKENARIO B: DATA SIAP (ANALISIS ML)
     # -------------------------------------------------------------------------
     else: # Jika Status == "Data Siap"
         f = st.file_uploader("Upload Data Bersih (Siap Olah)", type=["csv", "xlsx"])
@@ -799,7 +799,7 @@ elif menu == "📊 Testing Batch":
             with st.expander("📄 Preview Data"): st.dataframe(df, use_container_width=True)
 
             # 4. TABS
-            tab_eda, tab_ai = st.tabs(["📊 Tab 1: EDA", "🚀 Tab 2: Prediksi AI"])
+            tab_eda, tab_ai = st.tabs(["📊 EDA", "🚀 Prediksi AI"])
             
             # --- TAB 1: EDA ---
             with tab_eda:
